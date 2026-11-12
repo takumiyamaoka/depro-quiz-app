@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS workspace.depro_quiz.attempts (
   chosen       STRING    NOT NULL COMMENT 'A/B/C/D',
   is_correct   BOOLEAN   NOT NULL,
   confidence   STRING    COMMENT 'sure / unsure / guess',
-  mode         STRING    COMMENT 'today / review / section / random',
+  mode         STRING    COMMENT 'today / date / review / section / random',
   answered_at  TIMESTAMP NOT NULL
 )
 CLUSTER BY AUTO

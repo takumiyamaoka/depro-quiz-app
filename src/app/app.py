@@ -62,8 +62,21 @@ def execute(q: str, params: dict | None = None) -> None:
         cur.execute(q, params or {})
 
 
-def load_questions(mode: str, section: str | None) -> pd.DataFrame:
+def load_questions(mode: str, arg: str | None) -> pd.DataFrame:
     today = datetime.now(JST).date().isoformat()
+    if mode == "date":
+        # one past drill picked on the dashboard: unanswered questions, or the whole day if all answered
+        day = query(
+            f"""SELECT q.*, a.question_id IS NOT NULL AS _answered
+                FROM {SCHEMA}.questions q
+                LEFT JOIN (SELECT DISTINCT question_id FROM {SCHEMA}.attempts) a
+                  ON a.question_id = q.question_id
+                WHERE q.drill_date = to_date(:d) AND q.source = 'daily'
+                ORDER BY q.question_id""",
+            {"d": arg},
+        )
+        left = day[~day["_answered"].astype(bool)]
+        return (day if left.empty else left).drop(columns="_answered")
     if mode == "today":
         return query(
             f"""SELECT q.* FROM {SCHEMA}.questions q
@@ -84,7 +97,7 @@ def load_questions(mode: str, section: str | None) -> pd.DataFrame:
     if mode == "section":
         return query(
             f"SELECT * FROM {SCHEMA}.questions WHERE section = :s ORDER BY rand() LIMIT :n",
-            {"s": section, "n": settings()["random_n"]},
+            {"s": arg, "n": settings()["random_n"]},
         )
     return query(f"SELECT * FROM {SCHEMA}.questions ORDER BY rand() LIMIT :n",
                  {"n": settings()["random_n"]})
@@ -136,7 +149,8 @@ def save_settings(new: dict) -> None:
 
 
 # ---------- quiz state (persisted in quiz_sessions so a set can be resumed) ----------
-MODE_LABEL = {"today": "今日のドリル", "review": "復習", "section": "セクション指定", "random": "ランダム"}
+MODE_LABEL = {"today": "今日のドリル", "date": "日付指定", "review": "復習", "section": "セクション指定",
+              "random": "ランダム"}
 
 
 def user_email() -> str:
@@ -156,8 +170,8 @@ def save_progress(status: str = "active") -> None:
     )
 
 
-def start_set(mode: str, section: str | None = None) -> None:
-    qs = load_questions(mode, section).to_dict("records")
+def start_set(mode: str, arg: str | None = None) -> None:
+    qs = load_questions(mode, arg).to_dict("records")
     sid = str(uuid.uuid4())
     email = user_email()
     execute(
@@ -223,7 +237,10 @@ def quiz_view() -> None:
         return
 
     q = qs[idx]
-    st.caption(f"{MODE_LABEL.get(st.session_state.mode, '')}　{idx + 1} / {len(qs)}　"
+    mode_label = MODE_LABEL.get(st.session_state.mode, "")
+    if st.session_state.mode == "date":
+        mode_label += f" {pd.to_datetime(q['drill_date']):%m/%d}"
+    st.caption(f"{mode_label}　{idx + 1} / {len(qs)}　"
                f"{q['section']} {SECTIONS.get(q['section'], '')}・{q['topic']}")
     st.markdown(f"**{q['stem']}**")
     choices = list(q["choices"])
@@ -347,7 +364,24 @@ def page_dashboard() -> None:
             "状態": ["✅" if a == t else ("…" if a else "未") for a, t in
                     zip(drills["answered"].astype(int), drills["total"].astype(int))],
         })
-        st.dataframe(view, hide_index=True, use_container_width=True, height=min(36 * (len(view) + 1), 300))
+        picked = st.dataframe(view, hide_index=True, use_container_width=True,
+                              height=min(36 * (len(view) + 1), 300), key="drill_table",
+                              on_select="rerun", selection_mode="single-row")
+        rows = picked.selection.rows
+        if not rows:
+            st.caption("行をタップすると、その日のドリルを解けます。")
+        else:
+            r = drills.iloc[rows[0]]
+            day = pd.to_datetime(r["drill_date"]).date()
+            total, left = int(r["total"]), int(r["total"]) - int(r["answered"])
+            label = (f"{day:%m/%d} の未回答 {left} 問を解く" if left
+                     else f"{day:%m/%d} のドリルをもう一度解く（{total}問）")
+            if st.button(label, type="primary", use_container_width=True):
+                start_set("date", day.isoformat())
+                st.session_state.page = "quiz"
+                st.rerun()
+            if active_session():
+                st.caption("新しく始めると、途中のセットは破棄されます。")
 
     st.subheader("セクション別の正答率")
     by_sec = query(
