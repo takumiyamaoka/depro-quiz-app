@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-05-1",
+  "drill_date": "2026-11-05",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Streaming deduplication",
+  "stem": "Duplicate transaction events with the same txn_id can arrive up to 30 minutes apart. You want to remove duplicates in a stream while keeping state size bounded. Which approach fits best?",
+  "choices": [
+   "dropDuplicates([\"txn_id\"]) with no watermark",
+   "distinct() on the stream",
+   "A MERGE in foreachBatch against the entire target table on every batch",
+   "withWatermark(\"event_time\", \"30 minutes\").dropDuplicatesWithinWatermark([\"txn_id\"])"
+  ],
+  "answer": "D",
+  "explanation_ja": "dropDuplicatesWithinWatermark は、ウォーターマークの範囲内だけ txn_id を覚えておき、古いものは忘れるので状態が増え続けません。ウォーターマークなしの dropDuplicates は全部覚え続けます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-05-2",
+  "drill_date": "2026-11-05",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Stream-static joins",
+  "stem": "A streaming DataFrame of transactions is joined to a static Delta table account_dim, which a separate batch job updates once a day. Which statement is true?",
+  "choices": [
+   "Each micro-batch reads the latest version of account_dim, so updates are picked up without restarting the stream.",
+   "The static table is read once when the stream starts, so the stream must be restarted to see updates.",
+   "Stream-static joins require a watermark on both sides.",
+   "Stream-static joins are not supported when the static side is a Delta table."
+  ],
+  "answer": "A",
+  "explanation_ja": "静的側が Delta テーブルなら、マイクロバッチごとに最新のバージョンを読むので、再起動しなくても更新が反映されます。ウォーターマークが必要なのはストリーム同士の結合です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/delta-lake",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-05-3",
+  "drill_date": "2026-11-05",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Output modes",
+  "stem": "A streaming query groups transactions by account_id and computes sum(amount) with no watermark and no time window. Which output mode will fail when the query starts?",
+  "choices": [
+   "complete",
+   "update",
+   "append",
+   "None of them; all three are allowed."
+  ],
+  "answer": "C",
+  "explanation_ja": "ウォーターマークのない集計は、どの行も「もう変わらない」と決められないので、確定した行だけ出す append モードは使えません。complete と update は使えます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-05-4",
+  "drill_date": "2026-11-05",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Checkpoint per query",
+  "stem": "Two streaming queries write to two different Delta tables but are configured with the same checkpointLocation. What is correct?",
+  "choices": [
+   "This is fine, because the sinks are different tables.",
+   "Each streaming query must have its own unique checkpoint location.",
+   "Spark automatically creates a separate subfolder for each query.",
+   "It works only when both queries use trigger(availableNow=True)."
+  ],
+  "answer": "B",
+  "explanation_ja": "チェックポイントはクエリごとの進み具合の記録なので、クエリごとに別の場所が必要です。共有すると、進み具合が混ざって壊れます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-05-5",
+  "drill_date": "2026-11-05",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader rescue mode",
+  "stem": "An Auto Loader stream uses cloudFiles.schemaEvolutionMode = \"rescue\". New files start to include a column channel that is not in the schema. What happens?",
+  "choices": [
+   "The stream fails, and the new column is added to the schema on restart.",
+   "The stream keeps running, the schema does not change, and the channel values go into the _rescued_data column.",
+   "The channel column is silently dropped and not stored anywhere.",
+   "The schema is updated to include channel without the stream failing."
+  ],
+  "answer": "B",
+  "explanation_ja": "rescue モードではスキーマを変えず、ストリームも止めずに、新しい列の値を _rescued_data 列に入れます。A は既定の addNewColumns、C は none モードの動きです。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+  "source": "daily",
+  "version": 1
+ }
+]

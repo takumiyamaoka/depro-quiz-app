@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-04-1",
+  "drill_date": "2026-11-04",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Watermarks and append mode",
+  "stem": "A streaming query on txn_bronze computes 10-minute tumbling-window deposit totals using withWatermark(\"event_time\", \"15 minutes\") and writes to a Delta table in append output mode. When is the result for a given window first written to the sink?",
+  "choices": [
+   "As soon as the first event for that window arrives",
+   "At the end of every micro-batch, with updated totals each time",
+   "Only after the watermark moves past the end of that window",
+   "Never, because append mode cannot be used with aggregations"
+  ],
+  "answer": "C",
+  "explanation_ja": "append モードでは、ウォーターマークが枠の終わりを越えて「もう変わらない」と決まった時点で、その枠が1回だけ書き出されます。毎回更新した値を出すのは update モードです。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-04-2",
+  "drill_date": "2026-11-04",
+  "section": "S1",
+  "week": "W2",
+  "topic": "foreachBatch idempotent writes",
+  "stem": "Inside foreachBatch, a job writes each micro-batch to two Delta tables. If the job fails and restarts, the same batch may be processed again. What is the recommended way to make the Delta writes idempotent?",
+  "choices": [
+   "Use trigger(availableNow=True) instead of a processing-time trigger",
+   "Set the txnAppId and txnVersion (= batchId) options on each Delta write",
+   "Call persist() on the micro-batch DataFrame before writing",
+   "Delete the checkpoint directory before every restart"
+  ],
+  "answer": "B",
+  "explanation_ja": "txnAppId と txnVersion(= batchId)を書き込みオプションに付けると、同じバッチの再書き込みを Delta がスキップします。チェックポイントを消すと、むしろ全部読み直して重複します。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/foreach",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-04-3",
+  "drill_date": "2026-11-04",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Checkpoint compatibility",
+  "stem": "A stateful streaming query aggregates transactions by account_id. Which change to the query cannot be restarted from the same checkpoint?",
+  "choices": [
+   "Changing the processing-time trigger interval",
+   "Changing maxFilesPerTrigger on the Auto Loader source",
+   "Adding a where(\"amount > 0\") filter before the aggregation",
+   "Changing the grouping keys to account_id, channel"
+  ],
+  "answer": "D",
+  "explanation_ja": "トリガー間隔、レート制限、フィルタの追加は、同じチェックポイントのまま変えられます。集計キーの変更は保存済みの状態と形が合わなくなるので、新しいチェックポイントが必要です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-04-4",
+  "drill_date": "2026-11-04",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Triggers on serverless",
+  "stem": "A team on serverless compute wants a Lakeflow Jobs task that runs every hour, processes every new file that has landed since the last run, and then stops. Which trigger should the streaming query use?",
+  "choices": [
+   "trigger(availableNow=True)",
+   "trigger(processingTime=\"1 hour\")",
+   "trigger(continuous=\"1 second\")",
+   "No trigger (the default micro-batch mode)"
+  ],
+  "answer": "A",
+  "explanation_ja": "availableNow は、開始時点で届いているデータを何回かのマイクロバッチで全部処理してから止まります。ジョブで定期的に動かすのに向いていて、serverless でも使えます。processingTime は止まらずに動き続けます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-04-5",
+  "drill_date": "2026-11-04",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "A user has USE CATALOG on bank, plus USE SCHEMA and SELECT on the schema bank.retail. Tomorrow, a new table is created in bank.retail. Can the user query it?",
+  "choices": [
+   "No. SELECT must be granted on each table after it is created.",
+   "Yes. Privileges granted on a schema apply to current and future objects in it.",
+   "Only if the table owner runs GRANT ... ON FUTURE TABLES",
+   "Only if the user also has MODIFY on the schema"
+  ],
+  "answer": "B",
+  "explanation_ja": "スキーマやカタログに付けた権限は、今あるオブジェクトにも、あとから作られるオブジェクトにも引き継がれます。UC に GRANT ... ON FUTURE TABLES という構文はありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ }
+]

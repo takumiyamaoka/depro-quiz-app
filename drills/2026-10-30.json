@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-10-30-1",
+  "drill_date": "2026-10-30",
+  "section": "S7",
+  "week": "W1",
+  "topic": "Tag discovery",
+  "stem": "You need a list of every column tagged `pii` across the catalog `main`. Where do you query?",
+  "choices": [
+   "`DESCRIBE HISTORY` on each table",
+   "`system.billing.usage`",
+   "`main.information_schema.column_tags`",
+   "`SHOW TBLPROPERTIES` on each table"
+  ],
+  "answer": "C",
+  "explanation_ja": "タグの付いた列は `information_schema.column_tags` で一覧できます。",
+  "doc_url": "https://docs.databricks.com/aws/en/sql/language-manual/information-schema/column_tags",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-30-2",
+  "drill_date": "2026-10-30",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "You run `GRANT USE SCHEMA, SELECT ON CATALOG main TO analysts`. Next month a new schema `main.marketing` is created with new tables. Can analysts (who also have USE CATALOG) read them without any further grants?",
+  "choices": [
+   "Yes. Privileges granted on a catalog are inherited by all current and future schemas and tables in it",
+   "No. Inheritance covers only objects that existed at grant time",
+   "Only if the new schema is created by a metastore admin",
+   "Only for views, not for tables"
+  ],
+  "answer": "A",
+  "explanation_ja": "カタログやスキーマに付けた権限は、今あるものにも、これから作るものにも引き継がれます。「付けた時点のものだけ」は間違いです。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-30-3",
+  "drill_date": "2026-10-30",
+  "section": "S6",
+  "week": "W1",
+  "topic": "Workspace bindings",
+  "stem": "The catalog `prod` must be reachable only from the production workspace, even though all workspaces share the same metastore. What do you configure?",
+  "choices": [
+   "A row filter on every table in `prod`",
+   "Revoke USE CATALOG from all users and grant it back per user",
+   "Move `prod` to a separate metastore in the same region",
+   "Workspace bindings on the catalog, so it is accessible only from the bound workspace"
+  ],
+  "answer": "D",
+  "explanation_ja": "特定のワークスペースからしか使えないようにするには、カタログにワークスペースバインディングを設定します。",
+  "doc_url": "https://docs.databricks.com/aws/en/catalogs/binding",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-30-4",
+  "drill_date": "2026-10-30",
+  "section": "S7",
+  "week": "W1",
+  "topic": "View owner access",
+  "stem": "The view `main.rpt.daily_sales` reads from `main.sales.orders`. Analysts have USE CATALOG and USE SCHEMA, plus SELECT on the view, but no privileges on `main.sales.orders`. The view owner can read the table. What happens when an analyst queries the view?",
+  "choices": [
+   "The query fails; analysts also need SELECT on `main.sales.orders`",
+   "The query succeeds, because access to the base table is checked against the view owner",
+   "The query succeeds but returns zero rows",
+   "The query succeeds only if the view is a materialized view"
+  ],
+  "answer": "B",
+  "explanation_ja": "ビューを読む人に必要なのは、ビューへの SELECT（と USE CATALOG / USE SCHEMA）だけです。元のテーブルへのアクセスはビューの所有者の権限で確認されるので、0件になることもありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-30-5",
+  "drill_date": "2026-10-30",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader rescue mode",
+  "stem": "Auto Loader ingests JSON in which producers sometimes add new fields. The stream must keep running, the target schema must stay fixed, and unexpected fields must be kept. Which option?",
+  "choices": [
+   "`cloudFiles.schemaEvolutionMode = \"addNewColumns\"`",
+   "`cloudFiles.schemaEvolutionMode = \"failOnNewColumns\"`",
+   "`cloudFiles.schemaEvolutionMode = \"none\"`",
+   "`cloudFiles.schemaEvolutionMode = \"rescue\"`"
+  ],
+  "answer": "D",
+  "explanation_ja": "`rescue` を選ぶと、ストリームは止まらずスキーマも変わりません。想定外のフィールドは `_rescued_data` に入ります。failOnNewColumns は新しい列が来たら止まる設定です。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+  "source": "daily",
+  "version": 1
+ }
+]

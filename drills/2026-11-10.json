@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-10-1",
+  "drill_date": "2026-11-10",
+  "section": "S3",
+  "week": "W3",
+  "topic": "Quarantine pattern",
+  "stem": "In the Sakura Digital Bank pipeline, txn_silver drops rows whose account_id is NULL using ON VIOLATION DROP ROW. The risk team also wants to keep those bad rows in a table txn_quarantine for review. How do you do this?",
+  "choices": [
+   "Nothing extra; DROP ROW automatically writes dropped rows to a table named txn_silver_quarantine",
+   "Read the dropped rows from the pipeline event log, which stores every dropped row",
+   "Define txn_quarantine as a second table that reads txn_bronze with the opposite condition (account_id IS NULL)",
+   "Change the expectation to ON VIOLATION FAIL UPDATE"
+  ],
+  "answer": "C",
+  "explanation_ja": "DROP ROW は捨てた行をどこにも保存しません。イベントログに残るのは件数だけです。隔離したい場合は、同じ元データから条件を逆にした(account_id IS NULL)別のテーブルを作ります。W3 ハンズオンの txn_quarantine がこの形です。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/expectations",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-10-2",
+  "drill_date": "2026-11-10",
+  "section": "S1",
+  "week": "W3",
+  "topic": "Pipeline full refresh",
+  "stem": "You fixed a parsing bug in the streaming table txn_bronze and need every file in the Volume to be processed again with the new code. What should you do?",
+  "choices": [
+   "Run a full refresh of txn_bronze, which clears the table and its streaming state and reprocesses the source from the start",
+   "Run a normal update; streaming tables reprocess all files whenever the code changes",
+   "Run VACUUM on txn_bronze",
+   "Drop the _rescued_data column and run a normal update"
+  ],
+  "answer": "A",
+  "explanation_ja": "ストリーミングテーブルは処理済みのファイルを覚えているので、通常の更新では新しいファイルしか読みません。最初からやり直すにはそのテーブルをフルリフレッシュします。データとストリームの状態が消えて、元データを全部読み直します。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/updates",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-10-3",
+  "drill_date": "2026-11-10",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader schema hints",
+  "stem": "Auto Loader infers amount as STRING because some early files have quoted numbers. You want amount to be BIGINT but keep schema inference for all other columns. Which option should you use?",
+  "choices": [
+   "cloudFiles.inferColumnTypes = false",
+   "mergeSchema = true",
+   "cloudFiles.schemaEvolutionMode = \"none\"",
+   "cloudFiles.schemaHints = \"amount BIGINT\""
+  ],
+  "answer": "D",
+  "explanation_ja": "schemaHints を使うと、指定した列だけ型を決めて、ほかの列は推論のままにできます。inferColumnTypes を false にすると JSON の列がすべて文字列になり、逆効果です。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-10-4",
+  "drill_date": "2026-11-10",
+  "section": "S3",
+  "week": "W3",
+  "topic": "Expectations",
+  "stem": "An expectation in txn_silver is written as CONSTRAINT positive_amount EXPECT (amount > 0) with no ON VIOLATION clause. What happens to rows where amount is 0?",
+  "choices": [
+   "They are dropped from txn_silver",
+   "The pipeline update fails",
+   "They are written to txn_silver, and the violations are counted in the data quality metrics",
+   "They are moved to a quarantine table automatically"
+  ],
+  "answer": "C",
+  "explanation_ja": "ON VIOLATION を付けない EXPECT は、違反した行もそのまま書き込み、違反した件数だけを記録します(警告の扱い)。捨てるなら DROP ROW、止めるなら FAIL UPDATE を付けます。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/expectations",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-10-5",
+  "drill_date": "2026-11-10",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Watermarks and append mode",
+  "stem": "A query sums deposits in 10-minute tumbling windows with withWatermark(\"event_time\", \"20 minutes\") and writes in append mode. The latest event_time seen so far is 11:25. Which windows have already been written to the sink?",
+  "choices": [
+   "All windows up to 11:20-11:30",
+   "Windows that end at or before 11:05; for example 10:50-11:00 is written, but 11:00-11:10 is not yet",
+   "None; append mode writes only when the stream stops",
+   "All windows that end before 11:25"
+  ],
+  "answer": "B",
+  "explanation_ja": "ウォーターマーク = 11:25 − 20分 = 11:05。終わりが 11:05 以前の枠だけが確定して書き出されます。10:50〜11:00 は書き出し済み、11:00〜11:10 は終わりが 11:10 なのでまだです。基準はデータの event_time です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ }
+]

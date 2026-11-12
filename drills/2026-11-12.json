@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-12-1",
+  "drill_date": "2026-11-12",
+  "section": "S3",
+  "week": "W3",
+  "topic": "Expectations",
+  "stem": "A regulatory rule says txn_silver may only contain JPY transactions. If any row has another currency, nothing from that update should be published, and an engineer must investigate. Which expectation fits?",
+  "choices": [
+   "CONSTRAINT jpy_only EXPECT (currency = 'JPY') ON VIOLATION FAIL UPDATE",
+   "CONSTRAINT jpy_only EXPECT (currency = 'JPY') ON VIOLATION DROP ROW",
+   "CONSTRAINT jpy_only EXPECT (currency = 'JPY')",
+   "A WHERE currency = 'JPY' filter in the table definition"
+  ],
+  "answer": "A",
+  "explanation_ja": "FAIL UPDATE は違反した行が1行でもあると、その更新を失敗させて何も書き込みません。止めて調べたいときに使います。DROP ROW や WHERE は黙って行を捨てるので、問題に気づけません。何も付けない EXPECT は行を残します。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/expectations",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-12-2",
+  "drill_date": "2026-11-12",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader rescue mode",
+  "stem": "Auto Loader reads transaction JSON with cloudFiles.schemaHints = \"amount BIGINT\". One file contains amount as the string \"1,000\". What happens to that value by default?",
+  "choices": [
+   "The whole file is skipped",
+   "The stream fails until the file is removed",
+   "amount is changed to STRING for all rows",
+   "amount is NULL for that row, and the original value is kept in the _rescued_data column"
+  ],
+  "answer": "D",
+  "explanation_ja": "型が合わない値は、その列が NULL になり、元の値が _rescued_data 列に入ります。ストリームは止まりません。あとで _rescued_data を見れば、どの値が読めなかったか調べられます。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-12-3",
+  "drill_date": "2026-11-12",
+  "section": "S4",
+  "week": "W3",
+  "topic": "Pipeline event log",
+  "stem": "The operations team wants to build a dashboard on the event log of the Sakura Digital Bank pipeline using ordinary SQL on a Unity Catalog table. What is the simplest way?",
+  "choices": [
+   "Copy the Spark driver logs into a Volume every night",
+   "Configure the pipeline to publish its event log to a Unity Catalog table",
+   "Run DESCRIBE HISTORY on each pipeline table",
+   "Query system.billing.usage"
+  ],
+  "answer": "B",
+  "explanation_ja": "パイプラインの設定で、イベントログを Unity Catalog のテーブルとして公開できます。そうすれば普通の SQL やダッシュボードからそのまま読めます。DESCRIBE HISTORY は Delta の操作履歴で、イベントログの代わりにはなりません。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-12-4",
+  "drill_date": "2026-11-12",
+  "section": "S1",
+  "week": "W3",
+  "topic": "Declarative Pipelines vs Structured Streaming",
+  "stem": "Which statement about Lakeflow Declarative Pipelines compared with hand-written Structured Streaming is true?",
+  "choices": [
+   "You must set a checkpointLocation for every streaming table in a pipeline",
+   "Pipelines cannot use Auto Loader",
+   "Pipelines manage checkpoints and the order of dependent tables for you",
+   "Pipelines support only batch processing"
+  ],
+  "answer": "C",
+  "explanation_ja": "パイプラインでは、チェックポイントの場所やテーブルを更新する順番を自分で書く必要がなく、フレームワークが管理します。Auto Loader もストリーミングもそのまま使えます。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-12-5",
+  "drill_date": "2026-11-12",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Checkpoints",
+  "stem": "A streaming query appends JSON files from a Volume to txn_bronze. Someone deletes the query's checkpoint folder and restarts the query with the same code. What happens?",
+  "choices": [
+   "It continues from where it stopped, using the Delta log of txn_bronze",
+   "It reads all files in the source path again, so txn_bronze gets duplicate rows",
+   "It fails until the checkpoint is restored",
+   "It processes only files that arrive after the restart"
+  ],
+  "answer": "B",
+  "explanation_ja": "チェックポイントは「どのファイルまで処理したか」の記録です。消すと、クエリは初めて動くのと同じ状態になり、元のファイルを全部読み直すので、同じ行が二重に入ります。11/2 に間違えた問題の言い換えです。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+  "source": "daily",
+  "version": 1
+ }
+]

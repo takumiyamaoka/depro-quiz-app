@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-10-29-1",
+  "drill_date": "2026-10-29",
+  "section": "S7",
+  "week": "W1",
+  "topic": "Column comments",
+  "stem": "You want Catalog Explorer to show a description for the `email` column of `main.crm.customers`. Which statement does this?",
+  "choices": [
+   "`ALTER TABLE main.crm.customers ALTER COLUMN email SET TAGS ('comment' = 'Customer email')`",
+   "`ALTER TABLE main.crm.customers ALTER COLUMN email COMMENT 'Customer email'`",
+   "`ALTER TABLE main.crm.customers SET TBLPROPERTIES ('comment.email' = 'Customer email')`",
+   "`CREATE TAG email_comment ON main.crm.customers`"
+  ],
+  "answer": "B",
+  "explanation_ja": "列の説明は `ALTER COLUMN … COMMENT` で付けます。タグは分類用、TBLPROPERTIES は Delta の設定用です。",
+  "doc_url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-alter-table-manage-column",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-29-2",
+  "drill_date": "2026-10-29",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "The group `analysts` was granted `USE SCHEMA` and `SELECT` on the catalog `main`. Querying `main.sales.orders` still fails with a permission error. What is missing?",
+  "choices": [
+   "SELECT granted directly on `main.sales.orders`",
+   "MODIFY on the schema `main.sales`",
+   "Ownership of the schema `main.sales`",
+   "USE CATALOG on `main`"
+  ],
+  "answer": "D",
+  "explanation_ja": "カタログに付けた USE SCHEMA と SELECT は下の階層に引き継がれます。ただ、カタログそのものに入るための USE CATALOG はそれとは別に必要です。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-29-3",
+  "drill_date": "2026-10-29",
+  "section": "S7",
+  "week": "W1",
+  "topic": "Object ownership",
+  "stem": "An engineer who owns 40 production tables is leaving the company. What is the recommended way to keep the tables manageable?",
+  "choices": [
+   "Change the owner to a group, e.g. `ALTER TABLE ... SET OWNER TO `data-eng``, and make groups the owners going forward",
+   "Grant ALL PRIVILEGES on each table to the engineer's replacement and leave ownership as is",
+   "Deactivate the user; Unity Catalog moves ownership to the metastore admin automatically",
+   "Recreate each table with CTAS under a service principal"
+  ],
+  "answer": "A",
+  "explanation_ja": "所有者は個人ではなくグループにしておきます。ユーザーを無効にしても、所有権が勝手に移ることはありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/ownership",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-29-4",
+  "drill_date": "2026-10-29",
+  "section": "S7",
+  "week": "W1",
+  "topic": "BROWSE privilege",
+  "stem": "Business users should be able to find tables in the catalog `main` and see their metadata (names, comments, tags) without being able to read any data. What should you grant?",
+  "choices": [
+   "USE CATALOG and USE SCHEMA on everything in `main`",
+   "SELECT on every table, together with a row filter that returns no rows",
+   "BROWSE on the catalog `main`",
+   "READ VOLUME on the catalog `main`"
+  ],
+  "answer": "C",
+  "explanation_ja": "BROWSE を付けると、データは読めないまま、テーブルを探したりメタデータを見たりできます。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-29-5",
+  "drill_date": "2026-10-29",
+  "section": "S7",
+  "week": "W1",
+  "topic": "Table tags",
+  "stem": "You want to tag the whole table `main.sales.orders` with `domain = sales` so it shows up in tag-based search. Which statement does this?",
+  "choices": [
+   "`ALTER TABLE main.sales.orders SET TBLPROPERTIES ('domain' = 'sales')`",
+   "`ALTER TABLE main.sales.orders SET TAGS ('domain' = 'sales')`",
+   "`COMMENT ON TABLE main.sales.orders IS 'domain=sales'`",
+   "`ALTER TABLE main.sales.orders ALTER COLUMN * SET TAGS ('domain' = 'sales')`"
+  ],
+  "answer": "B",
+  "explanation_ja": "テーブル全体にタグを付けるときは `ALTER TABLE … SET TAGS` です。",
+  "doc_url": "https://docs.databricks.com/aws/en/database-objects/tags",
+  "source": "daily",
+  "version": 1
+ }
+]

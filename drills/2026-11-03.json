@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-03-1",
+  "drill_date": "2026-11-03",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Watermarks and append mode",
+  "stem": "A query counts transactions in 5-minute windows with withWatermark(\"event_time\", \"15 minutes\") in append mode. The latest event_time seen so far is 10:18. Has the window 10:00-10:05 been written to the sink?",
+  "choices": [
+   "Yes. A window is written as soon as its end time has passed in wall-clock time",
+   "Not yet. The watermark is 10:03, which is still before the window's end at 10:05",
+   "Yes. The watermark is 10:18, past the window end",
+   "No. Append mode writes windows only when the stream stops"
+  ],
+  "answer": "B",
+  "explanation_ja": "ウォーターマーク = 見た中で最大の event_time − 遅延許容 = 10:18 − 15分 = 10:03。枠の終わり 10:05 をまだ越えていないので、append モードでは書き出されません。基準は時計の時刻ではなくデータの event_time です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-03-2",
+  "drill_date": "2026-11-03",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Stream-stream joins",
+  "stem": "You join a stream of card transactions with a stream of fraud alerts on card_id, where an alert arrives within 10 minutes of its transaction. What keeps the join state from growing without limit?",
+  "choices": [
+   "Broadcasting the alerts stream",
+   "Using outputMode(\"complete\")",
+   "A watermark on the transactions stream only",
+   "Watermarks on both streams plus an event-time range condition in the join"
+  ],
+  "answer": "D",
+  "explanation_ja": "ストリーム同士の結合では、両側にウォーターマークを付け、結合条件に時間の範囲(例: alert_time BETWEEN txn_time AND txn_time + 10分)を入れると、古い状態を捨てられます。片側だけでは相手側の状態が残り続けます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-03-3",
+  "drill_date": "2026-11-03",
+  "section": "S1",
+  "week": "W2",
+  "topic": "foreachBatch idempotent writes",
+  "stem": "Inside foreachBatch, each micro-batch is appended to two Delta tables. After a failure the same batch may be replayed. How do you avoid writing it twice?",
+  "choices": [
+   "Pass txnAppId and txnVersion = batchId as write options on each Delta write",
+   "Give each inner write its own checkpointLocation",
+   "Call batch_df.cache() before writing",
+   "Switch the stream to trigger(once=True)"
+  ],
+  "answer": "A",
+  "explanation_ja": "Delta は txnAppId と txnVersion の組を覚えていて、同じ組の書き込みが来たらスキップします。batchId を txnVersion に使えば、再実行しても二重に書かれません。cache は重複を防ぎません。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/foreach",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-03-4",
+  "drill_date": "2026-11-03",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Checkpoint compatibility",
+  "stem": "A running aggregation grouped by account_id is changed to group by account_id, channel. You restart it with the same checkpoint. What happens?",
+  "choices": [
+   "It continues, and the new key applies only to new data",
+   "Databricks migrates the state to the new keys automatically",
+   "It fails or gives wrong results, because the saved state no longer matches the query. Start it with a new checkpoint (and reprocess if needed)",
+   "It runs, but the output switches to complete mode"
+  ],
+  "answer": "C",
+  "explanation_ja": "集計のキーを変えると、チェックポイントに保存された状態の形と合わなくなります。この変更は同じチェックポイントでは再開できないので、新しいチェックポイントで始めます。トリガー間隔やレート制限の変更は問題ありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-03-5",
+  "drill_date": "2026-11-03",
+  "section": "S7",
+  "week": "W1",
+  "topic": "View owner access",
+  "stem": "The view main.risk.v_daily_exposure, owned by risk-admins, reads main.core.loans. Analysts have USE CATALOG, USE SCHEMA and SELECT on the view only. What happens when an analyst queries the view?",
+  "choices": [
+   "It fails; analysts also need SELECT on main.core.loans",
+   "It succeeds, because access to main.core.loans is checked against the view owner risk-admins",
+   "It succeeds, but the rows from main.core.loans are masked",
+   "It fails unless the view is converted to a materialized view"
+  ],
+  "answer": "B",
+  "explanation_ja": "ビューの元テーブルへの権限は、ビューの所有者(ここでは risk-admins)で確認されます。使う人にはビューの SELECT と、親の USE CATALOG / USE SCHEMA があれば十分です。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ }
+]

@@ -1,0 +1,71 @@
+# Declarative Automation Bundle for the DE Pro quiz app
+bundle:
+  name: depro-quiz
+
+variables:
+  warehouse_id:
+    description: SQL warehouse used by the app (Free Edition has one)
+    lookup:
+      warehouse: "Serverless Starter Warehouse"
+
+resources:
+  apps:
+    depro_quiz:
+      name: depro-quiz
+      description: DE Pro drill on your phone
+      source_code_path: ./src/app
+      resources:
+        - name: sql-warehouse
+          sql_warehouse:
+            id: ${var.warehouse_id}
+            permission: CAN_USE
+
+  pipelines:
+    quiz_pipeline:
+      name: depro-quiz-pipeline
+      catalog: workspace
+      schema: depro_quiz
+      serverless: true
+      continuous: false
+      libraries:
+        - file:
+            path: ./src/pipeline/quiz_pipeline.sql
+
+  jobs:
+    ingest_on_arrival:
+      name: depro-quiz-ingest
+      trigger:
+        file_arrival:
+          url: /Volumes/workspace/depro_quiz/inbox/
+      tasks:
+        - task_key: refresh_questions
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.quiz_pipeline.id}
+
+    app_start:
+      name: depro-quiz-app-start
+      schedule:
+        quartz_cron_expression: "0 30 6 * * ?"
+        timezone_id: Asia/Tokyo
+      tasks:
+        - task_key: start
+          notebook_task:
+            notebook_path: ./src/jobs/app_power.py
+            base_parameters: {action: start, app_name: depro-quiz}
+
+    app_stop:
+      name: depro-quiz-app-stop
+      schedule:
+        quartz_cron_expression: "0 30 23 * * ?"
+        timezone_id: Asia/Tokyo
+      tasks:
+        - task_key: stop
+          notebook_task:
+            notebook_path: ./src/jobs/app_power.py
+            base_parameters: {action: stop, app_name: depro-quiz}
+
+targets:
+  # No "mode: development": it would prefix resource names and pause the schedules.
+  # Host and token come from DATABRICKS_HOST / DATABRICKS_TOKEN.
+  personal:
+    default: true

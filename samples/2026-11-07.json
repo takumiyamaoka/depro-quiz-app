@@ -1,0 +1,97 @@
+[
+  {
+    "question_id": "2026-11-07-1",
+    "drill_date": "2026-11-07",
+    "section": "S2",
+    "week": "W3",
+    "topic": "Auto Loader rescued data",
+    "stem": "An Auto Loader stream ingests JSON transaction files for Sakura Digital Bank. A new upstream version starts sending amount as a string such as \"1,000\" instead of a number. The team wants the stream to keep running and keep the unparseable values for later inspection. Which behavior does Auto Loader provide by default with schema inference enabled?",
+    "choices": [
+      "The stream fails and must be restarted with a new schema location",
+      "Values that do not match the inferred type are placed in the _rescued_data column",
+      "The whole file is skipped and logged in the event log",
+      "The amount column is automatically widened to STRING for all rows"
+    ],
+    "answer": "B",
+    "explanation_ja": "スキーマ推論を使うAuto Loaderでは、型が合わない値は既定で _rescued_data 列に入り、ストリームは止まりません。新しい列が増えた場合は既定（addNewColumns）でストリームが一度失敗し、スキーマを更新して再開します。型不一致と列の追加は挙動が違う点に注意してください。",
+    "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+    "source": "sample",
+    "version": 1
+  },
+  {
+    "question_id": "2026-11-07-2",
+    "drill_date": "2026-11-07",
+    "section": "S2",
+    "week": "W4",
+    "topic": "AUTO CDC SCD type 2",
+    "stem": "A customer master feed contains inserts, updates and deletes keyed by customer_id, with an event_ts column. Analysts need full history of address changes. Which Lakeflow Declarative Pipelines statement fits best?",
+    "choices": [
+      "MERGE INTO customers USING updates ON customer_id WHEN MATCHED THEN UPDATE SET *",
+      "AUTO CDC INTO customers ... KEYS (customer_id) SEQUENCE BY event_ts STORED AS SCD TYPE 1",
+      "AUTO CDC INTO customers ... KEYS (customer_id) SEQUENCE BY event_ts STORED AS SCD TYPE 2",
+      "CREATE MATERIALIZED VIEW customers AS SELECT DISTINCT * FROM updates"
+    ],
+    "answer": "C",
+    "explanation_ja": "履歴を残すならSCD Type 2です。AUTO CDC（旧APPLY CHANGES）は SEQUENCE BY で順序が入れ替わったイベントも正しく処理し、__START_AT / __END_AT 列で有効期間を管理します。Type 1は最新値だけを残します。",
+    "doc_url": "https://docs.databricks.com/aws/en/ldp/cdc",
+    "source": "sample",
+    "version": 1
+  },
+  {
+    "question_id": "2026-11-07-3",
+    "drill_date": "2026-11-07",
+    "section": "S7",
+    "week": "W3",
+    "topic": "UC privilege inheritance",
+    "stem": "A data engineer runs GRANT SELECT ON SCHEMA workspace.depro TO `analysts`. Next week a new table workspace.depro.txn_gold is created. What can members of analysts do with txn_gold, assuming they already have USE CATALOG and USE SCHEMA?",
+    "choices": [
+      "Nothing until SELECT is granted on txn_gold explicitly",
+      "Query it, because privileges granted on a schema are inherited by current and future objects in it",
+      "Query it only if they are the owner of the schema",
+      "Query it only after REFRESH GRANTS is executed"
+    ],
+    "answer": "B",
+    "explanation_ja": "Unity Catalogの権限は継承されます。スキーマに付けたSELECTは、その時点のテーブルだけでなく後から作られるテーブルにも効きます。テーブルを読むには、親のカタログにUSE CATALOG、スキーマにUSE SCHEMAが必要な点もセットで覚えてください。",
+    "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+    "source": "sample",
+    "version": 1
+  },
+  {
+    "question_id": "2026-11-07-4",
+    "drill_date": "2026-11-07",
+    "section": "S8",
+    "week": "W12",
+    "topic": "Databricks Apps service principal",
+    "stem": "A Databricks App reads a Unity Catalog table through a SQL warehouse using app authorization. The app shows a permission error although the developer can query the table. What is the most likely fix?",
+    "choices": [
+      "Grant the developer CAN_MANAGE on the app",
+      "Grant the app's service principal USE CATALOG, USE SCHEMA and SELECT on the table",
+      "Restart the SQL warehouse",
+      "Add the table path to app.yaml"
+    ],
+    "answer": "B",
+    "explanation_ja": "アプリ認可では、アプリごとに自動作成されるサービスプリンシパルの権限で動きます。開発者本人が読めても、サービスプリンシパルにUC権限がなければ失敗します。ユーザーの権限で動かしたい場合はユーザー認可（on-behalf-of）を使います。",
+    "doc_url": "https://docs.databricks.com/aws/dev-tools/databricks-apps/key-concepts",
+    "source": "sample",
+    "version": 1
+  },
+  {
+    "question_id": "2026-11-07-5",
+    "drill_date": "2026-11-07",
+    "section": "S5",
+    "week": "W8",
+    "topic": "Liquid clustering CLUSTER BY AUTO",
+    "stem": "A large Delta table of bank transactions is queried with changing filter patterns. The team does not want to choose clustering keys manually. Which option is designed for this?",
+    "choices": [
+      "PARTITIONED BY (event_date)",
+      "ZORDER BY (account_id) in a nightly OPTIMIZE",
+      "CLUSTER BY AUTO with predictive optimization",
+      "Bloom filter indexes on every column"
+    ],
+    "answer": "C",
+    "explanation_ja": "CLUSTER BY AUTO は、クエリの傾向をもとにDatabricksがリキッドクラスタリングのキーを自動で選び、見直します。予測最適化が有効なUnity Catalogのマネージドテーブルが前提です。",
+    "doc_url": "https://docs.databricks.com/aws/en/delta/clustering",
+    "source": "sample",
+    "version": 1
+  }
+]

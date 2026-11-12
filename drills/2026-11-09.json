@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-09-1",
+  "drill_date": "2026-11-09",
+  "section": "S1",
+  "week": "W3",
+  "topic": "Streaming tables vs materialized views",
+  "stem": "In a Lakeflow Declarative Pipeline for Sakura Digital Bank, daily_cash_flow sums deposits and withdrawals per day from txn_silver. Corrections sometimes update or delete older rows in txn_silver. Which dataset type should daily_cash_flow be so that its totals stay correct?",
+  "choices": [
+   "A streaming table that reads txn_silver with STREAM()",
+   "A materialized view",
+   "A temporary view that is not published",
+   "An append-only streaming table with a watermark on event_time"
+  ],
+  "answer": "B",
+  "explanation_ja": "マテリアライズドビューは、元のテーブルの更新や削除も反映して結果を正しく保ちます(できるときは増分で更新)。ストリーミングテーブルは追記された行だけを1回処理するので、過去の行の更新や削除は集計に反映されません。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/materialized-views",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-09-2",
+  "drill_date": "2026-11-09",
+  "section": "S3",
+  "week": "W3",
+  "topic": "Expectations",
+  "stem": "Rows in txn_silver must never have a NULL account_id. Bad rows should be removed from txn_silver, the pipeline should keep running, and the number of bad rows should be recorded. Which expectation fits?",
+  "choices": [
+   "CONSTRAINT valid_account EXPECT (account_id IS NOT NULL)",
+   "CONSTRAINT valid_account EXPECT (account_id IS NOT NULL) ON VIOLATION FAIL UPDATE",
+   "A Delta CHECK constraint on txn_silver",
+   "CONSTRAINT valid_account EXPECT (account_id IS NOT NULL) ON VIOLATION DROP ROW"
+  ],
+  "answer": "D",
+  "explanation_ja": "ON VIOLATION DROP ROW は違反した行を書き込まずに捨て、件数をイベントログに記録し、パイプラインは止まりません。何も付けない EXPECT は行を残して記録だけ、FAIL UPDATE は更新を失敗させます。Delta の CHECK 制約は違反した書き込み全体を失敗させます。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/expectations",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-09-3",
+  "drill_date": "2026-11-09",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader schema evolution",
+  "stem": "An Auto Loader stream infers the schema of transaction JSON files and uses the default schema evolution mode. New files start to include a column channel. What happens?",
+  "choices": [
+   "The stream stops with an error after recording channel in the schema location; after a restart it continues with channel as a new column",
+   "The stream keeps running and puts channel values in _rescued_data",
+   "The stream ignores channel and never adds it",
+   "The stream adds channel immediately without stopping"
+  ],
+  "answer": "A",
+  "explanation_ja": "既定の addNewColumns では、新しい列を見つけるとスキーマの保存先に列を追加してからストリームを止めます。再起動すると新しい列ありで続きます(ジョブやパイプラインの再試行で自動で再開させるのが一般的)。B は rescue、C は none の動きです。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-09-4",
+  "drill_date": "2026-11-09",
+  "section": "S4",
+  "week": "W3",
+  "topic": "Pipeline event log",
+  "stem": "You want a query that shows, for each pipeline update, how many rows passed and failed each expectation in txn_silver. Where do you get this data?",
+  "choices": [
+   "system.billing.usage",
+   "DESCRIBE HISTORY txn_silver",
+   "The pipeline event log (for example with the event_log() function), from flow_progress events",
+   "The Spark UI of the last update"
+  ],
+  "answer": "C",
+  "explanation_ja": "エクスペクテーションの結果は、パイプラインのイベントログの flow_progress イベント(details の data_quality)に記録されます。event_log() 関数で SQL から読めます。DESCRIBE HISTORY は Delta の操作履歴で、品質の件数はありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-09-5",
+  "drill_date": "2026-11-09",
+  "section": "S7",
+  "week": "W1",
+  "topic": "View owner access",
+  "stem": "Analysts have SELECT on the view v_txn_summary, which is owned by the group data-eng and reads txn_silver. An admin revokes data-eng's SELECT on txn_silver. What happens when an analyst queries the view?",
+  "choices": [
+   "It still works, because analysts have SELECT on the view",
+   "It fails, because access to txn_silver is checked against the view owner, who no longer has it",
+   "It works but returns no rows",
+   "It works only for metastore admins"
+  ],
+  "answer": "B",
+  "explanation_ja": "ビューの元テーブルへの権限は、ビューの所有者で確認されます。所有者 data-eng が txn_silver の SELECT を失うと、ビューの SELECT を持つアナリストも読めなくなります。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ }
+]
