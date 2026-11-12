@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-06-1",
+  "drill_date": "2026-11-06",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Stream-stream joins",
+  "stem": "You join a stream of transactions with a stream of fraud alerts on txn_id. An alert arrives within 1 hour of its transaction. What do you need so that the join state does not grow without limit?",
+  "choices": [
+   "Cache the fraud-alert stream in memory",
+   "A watermark on both inputs, plus an event-time range condition in the join",
+   "Use complete output mode",
+   "Nothing; join state expires automatically after 24 hours"
+  ],
+  "answer": "B",
+  "explanation_ja": "ストリーム同士の結合では、両側のウォーターマークと、結合条件の時間の範囲がそろって初めて、古い状態を捨てられます。自動で消える期限はありません。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-06-2",
+  "drill_date": "2026-11-06",
+  "section": "S1",
+  "week": "W2",
+  "topic": "foreachBatch MERGE",
+  "stem": "Inside foreachBatch, a MERGE into account_last_txn fails with \"multiple source rows matched\" because one micro-batch has several transactions for the same account_id. What is the right fix?",
+  "choices": [
+   "Increase spark.sql.shuffle.partitions",
+   "Switch the query to append output mode",
+   "Use trigger(availableNow=True)",
+   "Keep only the latest row per account_id in the micro-batch (for example with row_number) before the MERGE"
+  ],
+  "answer": "D",
+  "explanation_ja": "MERGE は1つのターゲット行に複数の元の行が当たるとエラーになります。マイクロバッチの中で account_id ごとに最新の1行だけ残して(row_number など)から MERGE します。W2 ハンズオンの手順と同じです。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/foreach",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-06-3",
+  "drill_date": "2026-11-06",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Declarative Pipelines vs Structured Streaming",
+  "stem": "A team wants built-in data quality rules, automatic ordering of dependent tables, and checkpoints that are managed for them, with as little code as possible. What should they use?",
+  "choices": [
+   "Lakeflow Declarative Pipelines",
+   "Structured Streaming with hand-written checkpoint paths",
+   "A Lakeflow Jobs task that runs a batch notebook every minute",
+   "A SQL warehouse query scheduled every 5 minutes"
+  ],
+  "answer": "A",
+  "explanation_ja": "Lakeflow Declarative Pipelines には expectations(品質ルール)、テーブル間の依存関係の自動解決、チェックポイントの自動管理があります。細かい制御が必要なときは Structured Streaming を使います。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-06-4",
+  "drill_date": "2026-11-06",
+  "section": "S2",
+  "week": "W2",
+  "topic": "Auto Loader rate limiting",
+  "stem": "On its first run, an Auto Loader stream finds about 1 million existing files. You want each micro-batch to handle a limited amount of data. Which option should you set?",
+  "choices": [
+   "spark.sql.shuffle.partitions",
+   "trigger(continuous=\"1 second\")",
+   "cloudFiles.maxFilesPerTrigger",
+   "cloudFiles.schemaHints"
+  ],
+  "answer": "C",
+  "explanation_ja": "cloudFiles.maxFilesPerTrigger(または maxBytesPerTrigger)で、1回のマイクロバッチで読む量を制限できます。schemaHints は型の指定用です。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/options",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-06-5",
+  "drill_date": "2026-11-06",
+  "section": "S6",
+  "week": "W1",
+  "topic": "Governed tags",
+  "stem": "In Unity Catalog, what is a governed tag?",
+  "choices": [
+   "Any tag a table owner sets on their own table",
+   "A tag with an account-level policy that defines its allowed values and who can assign it",
+   "A key-value pair stored only in Delta table properties",
+   "Another name for a column comment"
+  ],
+  "answer": "B",
+  "explanation_ja": "governed tag は、アカウントレベルで決めた「使ってよい値」と「付けてよい人」のルールがあるタグです。ABAC のポリシーはこのタグを条件に使います。",
+  "doc_url": "https://docs.databricks.com/aws/en/database-objects/tags",
+  "source": "daily",
+  "version": 1
+ }
+]

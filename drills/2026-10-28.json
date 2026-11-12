@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-10-28-1",
+  "drill_date": "2026-10-28",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "An admin runs `GRANT SELECT ON SCHEMA main.sales TO analysts`. Which statement is true?",
+  "choices": [
+   "Analysts can read only the tables that existed at grant time",
+   "Analysts can now create tables in `main.sales`",
+   "Analysts get SELECT on current and future tables in the schema, but still need USE CATALOG on `main` and USE SCHEMA on `main.sales` to query them",
+   "The grant has no effect until SELECT is granted on each table"
+  ],
+  "answer": "C",
+  "explanation_ja": "スキーマに SELECT を付けると、今あるテーブルにも今後作るテーブルにも引き継がれます。ただし、実際にクエリするには親の USE CATALOG と USE SCHEMA も必要です。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-28-2",
+  "drill_date": "2026-10-28",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC grant authority",
+  "stem": "In Unity Catalog, who can grant SELECT on the table `main.sales.orders`?",
+  "choices": [
+   "The table owner, the owner of its schema or catalog, a metastore admin, or a user with MANAGE on the table",
+   "Any user who already has SELECT on the table",
+   "Only a workspace admin",
+   "Only an account admin"
+  ],
+  "answer": "A",
+  "explanation_ja": "権限を付けられるのは、テーブルの所有者、その親のスキーマかカタログの所有者、メタストア管理者、それに MANAGE 権限を持つ人です。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-28-3",
+  "drill_date": "2026-10-28",
+  "section": "S7",
+  "week": "W1",
+  "topic": "Column tags",
+  "stem": "You want to mark the `email` column of `main.crm.customers` as PII so it is easy to find in Catalog Explorer search. Which statement does this?",
+  "choices": [
+   "`COMMENT ON TABLE main.crm.customers IS 'pii: email'`",
+   "`ALTER TABLE main.crm.customers SET TBLPROPERTIES ('pii' = 'email')`",
+   "`ALTER TABLE main.crm.customers ADD CONSTRAINT pii CHECK (email IS NOT NULL)`",
+   "`ALTER TABLE main.crm.customers ALTER COLUMN email SET TAGS ('pii' = 'email')`"
+  ],
+  "answer": "D",
+  "explanation_ja": "列にタグを付けるには `ALTER TABLE … ALTER COLUMN … SET TAGS`。TBLPROPERTIES は Delta の設定用で、UC のタグとは別物なので検索の対象になりません。テーブル全体なら `ALTER TABLE … SET TAGS` です。",
+  "doc_url": "https://docs.databricks.com/aws/en/database-objects/tags",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-28-4",
+  "drill_date": "2026-10-28",
+  "section": "S6",
+  "week": "W1",
+  "topic": "Governed tags",
+  "stem": "The security team wants the tag key `sensitivity` to accept only `public`, `internal` or `restricted`, and only a small group should be allowed to apply it. The tag will also drive ABAC policies. What should you use?",
+  "choices": [
+   "Table comments with a naming convention",
+   "Governed tags",
+   "Table properties set by a Lakeflow Job",
+   "A UC function that validates tag values"
+  ],
+  "answer": "B",
+  "explanation_ja": "Governed tags は、アカウントレベルで「使える値」と「付けられる人」を決めておけるタグです。ABAC のポリシーはこのタグを条件にして、行フィルタや列マスクをかけます。",
+  "doc_url": "https://docs.databricks.com/aws/en/admin/governed-tags/",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-10-28-5",
+  "drill_date": "2026-10-28",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Watermarks and append mode",
+  "stem": "A streaming query counts events in 5-minute tumbling windows with `withWatermark(\"event_time\", \"10 minutes\")` and writes in append mode. When is the count for the window 12:00–12:05 written to the sink?",
+  "choices": [
+   "At the end of every micro-batch, updated each time",
+   "As soon as the first event for that window arrives",
+   "Once the watermark passes 12:05, meaning an event later than 12:15 has been seen",
+   "Only when the stream is stopped"
+  ],
+  "answer": "C",
+  "explanation_ja": "append モードでは、ウォーターマークがウィンドウの終わり（12:05）を過ぎたときに1回だけ出力されます。ウォーターマークは、それまでに見た最大のイベント時刻から10分を引いた時刻です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ }
+]

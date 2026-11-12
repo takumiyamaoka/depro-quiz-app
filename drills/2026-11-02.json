@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-02-1",
+  "drill_date": "2026-11-02",
+  "section": "S1",
+  "week": "W2",
+  "topic": "foreachBatch MERGE",
+  "stem": "A stream of bank transactions must keep one row per account in a Delta table with that account's latest transaction, updating the row whenever a newer one arrives. How do you write this?",
+  "choices": [
+   "`outputMode(\"update\")` writing directly to the Delta table",
+   "`outputMode(\"complete\")` with a groupBy on account_id",
+   "`outputMode(\"append\")` with a watermark on event_time",
+   "`foreachBatch` with a MERGE INTO on account_id"
+  ],
+  "answer": "D",
+  "explanation_ja": "口座ごとに最新の1行を「更新」するには、`foreachBatch` の中で MERGE を使います。update モードで Delta に直接書いても、行が追記されるだけで上書きにはなりません。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/foreach",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-02-2",
+  "drill_date": "2026-11-02",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Checkpoints",
+  "stem": "A streaming query reads JSON files from a Volume and appends them to `txn_bronze`. Someone deletes the query's checkpoint directory and restarts it. What happens?",
+  "choices": [
+   "All files in the source path are processed again, creating duplicate rows in `txn_bronze`",
+   "The query resumes where it stopped, using the Delta log of `txn_bronze`",
+   "The query fails until the checkpoint is restored",
+   "Only files that arrived after the deletion are processed"
+  ],
+  "answer": "A",
+  "explanation_ja": "チェックポイントは「どのファイルまで読んだか」の記録です。消すとクエリは最初から読み直すので、bronze に重複した行ができます。失敗はしません。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-02-3",
+  "drill_date": "2026-11-02",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Triggers on serverless",
+  "stem": "On serverless compute you schedule a job that runs a stream with `trigger(availableNow=True)`. What does it do on each run?",
+  "choices": [
+   "Processes a single micro-batch, however much data is waiting, then stops",
+   "Keeps running and starts a new micro-batch every 10 seconds",
+   "Processes all data available at start time, possibly in several micro-batches, then stops",
+   "Runs in continuous mode with millisecond latency"
+  ],
+  "answer": "C",
+  "explanation_ja": "`availableNow` は、開始時点で届いているデータを何回かのマイクロバッチに分けて全部処理し、終わったら止まります。一度に1バッチだけ処理するのは、廃止予定の `once` です。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-02-4",
+  "drill_date": "2026-11-02",
+  "section": "S1",
+  "week": "W2",
+  "topic": "Streaming deduplication",
+  "stem": "The core-banking system sometimes sends the same transaction twice, up to 30 minutes apart. You must drop the duplicates by `txn_id` without keeping state forever. Which approach fits?",
+  "choices": [
+   "`dropDuplicates([\"txn_id\"])` with no watermark",
+   "`withWatermark(\"event_time\", \"30 minutes\").dropDuplicatesWithinWatermark([\"txn_id\"])`",
+   "A MERGE on txn_id in a separate nightly job",
+   "`distinct()` on the streaming DataFrame"
+  ],
+  "answer": "B",
+  "explanation_ja": "ウォーターマークなしの `dropDuplicates` は、見た txn_id をずっと覚え続けるので、状態が増え続けます。`dropDuplicatesWithinWatermark` なら、30分を過ぎた分は忘れます。",
+  "doc_url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-02-5",
+  "drill_date": "2026-11-02",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "An admin ran `GRANT USE SCHEMA, SELECT ON SCHEMA main.bank TO auditors` last week (auditors already have USE CATALOG on `main`). Today a new table `main.bank.loans` is created. Can auditors query it?",
+  "choices": [
+   "Yes. The schema-level SELECT applies to tables created later too",
+   "No. SELECT must be granted on `main.bank.loans` itself",
+   "Only after the table owner runs `ALTER TABLE ... SET OWNER TO auditors`",
+   "Only if the table is created as a view"
+  ],
+  "answer": "A",
+  "explanation_ja": "スキーマに付けた SELECT は、あとから作られたテーブルにも効きます。この問題を間違えるのは3回目です。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ }
+]

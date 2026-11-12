@@ -1,0 +1,97 @@
+[
+ {
+  "question_id": "2026-11-11-1",
+  "drill_date": "2026-11-11",
+  "section": "S1",
+  "week": "W3",
+  "topic": "Streaming tables vs materialized views",
+  "stem": "txn_bronze must ingest new JSON transaction files from a Volume as they arrive, process each file exactly once, and only ever append rows. Which dataset type fits best?",
+  "choices": [
+   "A streaming table that reads the files with Auto Loader (STREAM read_files)",
+   "A materialized view over read_files",
+   "A view over read_files",
+   "A materialized view that is fully recomputed on every update"
+  ],
+  "answer": "A",
+  "explanation_ja": "追記だけで、新しいファイルを1回ずつ処理する取り込みにはストリーミングテーブルが向いています。マテリアライズドビューは結果を正しく保つために再計算することがあり、ファイルの取り込みには向きません。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/streaming-tables",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-11-2",
+  "drill_date": "2026-11-11",
+  "section": "S2",
+  "week": "W3",
+  "topic": "Auto Loader file detection",
+  "stem": "The landing folder for card transactions already holds millions of files and grows every minute. Auto Loader spends most of each run listing the directory. What should you change?",
+  "choices": [
+   "Increase cloudFiles.maxFilesPerTrigger",
+   "Switch Auto Loader to file notification mode (file events) instead of directory listing",
+   "Add cloudFiles.schemaHints",
+   "Use trigger(continuous=\"1 second\")"
+  ],
+  "answer": "B",
+  "explanation_ja": "ディレクトリ一覧モードは、毎回フォルダの中身を一覧するので、ファイルが多いと遅くなります。ファイル通知モード(ファイルイベント)なら、新しく届いたファイルだけを知らせてもらえるので、大量のファイルでも速く動きます。",
+  "doc_url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-detection-modes",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-11-3",
+  "drill_date": "2026-11-11",
+  "section": "S3",
+  "week": "W3",
+  "topic": "Expectations",
+  "stem": "In a Python pipeline (from pyspark import pipelines as dp), txn_silver has two rules: valid_account and positive_amount. Rows that break either rule must be dropped. Which decorator do you use?",
+  "choices": [
+   "@dp.expect_all({...})",
+   "@dp.expect_all_or_fail({...})",
+   "@dp.expect_all_or_drop({...})",
+   "@dp.expect_or_fail(...)"
+  ],
+  "answer": "C",
+  "explanation_ja": "複数のルールをまとめて書くのが expect_all 系で、違反した行を捨てるのは expect_all_or_drop です。expect_all は記録だけ、_or_fail は更新を失敗させます。SQL の ON VIOLATION DROP ROW と同じ動きです。",
+  "doc_url": "https://docs.databricks.com/aws/en/ldp/expectations",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-11-4",
+  "drill_date": "2026-11-11",
+  "section": "S1",
+  "week": "W3",
+  "topic": "Materialized view refresh",
+  "stem": "Which statement about refreshing a materialized view in a serverless Lakeflow Declarative Pipeline is true?",
+  "choices": [
+   "It is always fully recomputed from scratch",
+   "It only appends new rows and never changes existing rows",
+   "It cannot read from a streaming table in the same pipeline",
+   "It is refreshed incrementally when the query allows it, and fully recomputed otherwise"
+  ],
+  "answer": "D",
+  "explanation_ja": "serverless のパイプラインでは、マテリアライズドビューは可能なら変わった部分だけ増分で更新し、できない場合は全体を再計算します。どちらでも結果は元データに対して正しく保たれます。ストリーミングテーブルを元にすることもできます。",
+  "doc_url": "https://docs.databricks.com/aws/en/optimizations/incremental-refresh",
+  "source": "daily",
+  "version": 1
+ },
+ {
+  "question_id": "2026-11-11-5",
+  "drill_date": "2026-11-11",
+  "section": "S7",
+  "week": "W1",
+  "topic": "UC privilege inheritance",
+  "stem": "Auditors have USE CATALOG, USE SCHEMA and SELECT granted on the catalog bank. Next month a new schema bank.cards is created with new tables. Can auditors read those tables?",
+  "choices": [
+   "No. USE SCHEMA must be granted on bank.cards itself",
+   "Yes. Privileges granted on the catalog apply to all current and future schemas and tables in it",
+   "Only the tables, not the schema, inherit the grant",
+   "Only after the schema owner grants SELECT to auditors"
+  ],
+  "answer": "B",
+  "explanation_ja": "カタログに付けた権限は、その中の今あるスキーマやテーブルにも、あとから作られるものにも引き継がれます。USE SCHEMA もカタログで付けておけば、新しいスキーマに効きます。",
+  "doc_url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+  "source": "daily",
+  "version": 1
+ }
+]
